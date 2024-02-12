@@ -9,7 +9,12 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    private var contacts = [ContactProtocol]()
+    private var contacts = [ContactProtocol]() {
+        didSet {
+            contacts.sort{ $0.title < $1.title}
+        }
+    }
+    @IBOutlet var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,7 +26,35 @@ class ViewController: UIViewController {
         contacts.append(Contact(title: "Sana TO", phone: "+78885545"))
         contacts.append(Contact(title: "Voloda garaj", phone: "+78885545"))
         contacts.append(Contact(title: "Silvestr", phone: "+375445557575"))
-        contacts.sort { $0.title < $1.title }
+    }
+    
+    @IBAction private func showNewContactAlert() {
+        let alert = UIAlertController(title: "Creating a new contact", message: "Fill in the name and phone", 
+                                      preferredStyle: .alert)
+        alert.addTextField {textField in
+            textField.placeholder = "Name"
+        }
+        alert.addTextField {textField in
+            textField.placeholder = "Phone number"
+        }
+        
+        let createButton = UIAlertAction(title: "Create", style: .default) {_ in
+            guard let contactName = alert.textFields?[0].text,
+                  let phoneNumber = alert.textFields?[1].text else {
+                return
+            }
+            // create a new contact
+            let contact = Contact(title: contactName, phone: phoneNumber)
+            self.contacts.append(contact)
+            self.tableView.reloadData()
+        }
+        
+        let cancelButton = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alert.addAction(createButton)
+        alert.addAction(cancelButton)
+        
+        self.present(alert, animated: true)
     }
 
 
